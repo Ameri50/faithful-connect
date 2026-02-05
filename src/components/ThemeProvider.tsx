@@ -1,66 +1,58 @@
-import { createContext, useEffect, useState } from "react";
- 
- type Theme = "dark" | "light" | "system";
- 
- type ThemeProviderProps = {
-   children: React.ReactNode;
-   defaultTheme?: Theme;
-   storageKey?: string;
- };
- 
- type ThemeProviderState = {
-   theme: Theme;
-   setTheme: (theme: Theme) => void;
- };
- 
- const initialState: ThemeProviderState = {
-   theme: "system",
-   setTheme: () => null,
- };
- 
- const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
- 
- export function ThemeProvider({
-   children,
-   defaultTheme = "system",
-   storageKey = "tabernacle-theme",
-   ...props
- }: ThemeProviderProps) {
-   const [theme, setTheme] = useState<Theme>(
-     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-   );
- 
-   useEffect(() => {
-     const root = window.document.documentElement;
- 
-     root.classList.remove("light", "dark");
- 
-     if (theme === "system") {
-       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-         .matches
-         ? "dark"
-         : "light";
- 
-       root.classList.add(systemTheme);
-       return;
-     }
- 
-     root.classList.add(theme);
-   }, [theme]);
- 
-   const value = {
-     theme,
-     setTheme: (theme: Theme) => {
-       localStorage.setItem(storageKey, theme);
-       setTheme(theme);
-     },
-   };
- 
-   return (
-     <ThemeProviderContext.Provider {...props} value={value}>
-       {children}
-     </ThemeProviderContext.Provider>
-   );
- }
- 
-// The useTheme hook has been moved to a separate file in the hooks directory.
+import React, { createContext, useContext, useEffect, useState } from "react";
+
+type Theme = "light" | "dark";
+
+interface ThemeContextType {
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+}
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setThemeState] = useState<Theme>(() => {
+    // Verificar si hay tema guardado en localStorage
+    const saved = localStorage.getItem("theme");
+    if (saved === "light" || saved === "dark") {
+      return saved;
+    }
+    
+    // Usar preferencia del sistema
+    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      return "dark";
+    }
+    return "light";
+  });
+
+  useEffect(() => {
+    // Guardar tema en localStorage
+    localStorage.setItem("theme", theme);
+    
+    // Aplicar tema al documento
+    const root = document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+  }, [theme]);
+
+  const setTheme = (newTheme: Theme) => {
+    setThemeState(newTheme);
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error("useTheme debe ser usado dentro de ThemeProvider");
+  }
+  return context;
+}

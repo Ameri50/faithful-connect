@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Download, Smartphone, Globe, Headphones, BookOpen, X, Monitor, Tablet } from "lucide-react";
+import { Download, Smartphone, Globe, Headphones, BookOpen, X, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -22,93 +22,66 @@ const features = [
   },
 ];
 
+// URLs para cada tipo de dispositivo
 const downloadLinks = [
-  { os: "Windows", filename: "TheTable-Setup-Windows.exe", path: "/api/downloads/windows", icon: Monitor },
-  { os: "macOS", filename: "TheTable-Setup-macOS.dmg", path: "/api/downloads/macos", icon: Monitor },
-  { os: "Linux", filename: "TheTable-Setup-Linux.AppImage", path: "/api/downloads/linux", icon: Monitor },
-  { os: "iOS", filename: "TheTable-iOS.ipa", path: "/api/downloads/ios", icon: Smartphone },
-  { os: "Android", filename: "TheTable-Android.apk", path: "/api/downloads/android", icon: Smartphone },
+  {
+    os: "Windows",
+    icon: Monitor,
+    description: "Para Windows 10+",
+    url: "https://branham.org/es/articles/8152019_TheTableDesktopApp",
+    type: "desktop",
+  },
+  {
+    os: "macOS",
+    icon: Monitor,
+    description: "Para macOS 10.15+",
+    url: "https://branham.org/es/articles/8152019_TheTableDesktopApp",
+    type: "desktop",
+  },
+  {
+    os: "Linux",
+    icon: Monitor,
+    description: "Para Linux",
+    url: "https://branham.org/es/articles/8152019_TheTableDesktopApp",
+    type: "desktop",
+  },
+  {
+    os: "iOS",
+    icon: Smartphone,
+    description: "Para iPhone y iPad",
+    url: "https://apps.apple.com/pe/app/the-table-mobile/id589296925",
+    type: "mobile",
+  },
+  {
+    os: "Android",
+    icon: Smartphone,
+    description: "Para dispositivos Android",
+    url: "https://play.google.com/store/apps/details?id=com.branham.table", // Cambia si tienes otro link
+    type: "mobile",
+  },
 ];
-
-interface Platform {
-  os: string;
-  filename: string;
-  path: string;
-  icon: unknown;
-  type: "desktop" | "mobile";
-}
 
 export function AppDownload() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [downloadProgress, setDownloadProgress] = useState(0);
 
-  const handleDownload = async (downloadPath: string, filename: string) => {
-    setIsDownloading(true);
-    setDownloadProgress(0);
-
-    try {
-      const response = await fetch(downloadPath);
-
-      if (!response.ok) {
-        throw new Error("Error al descargar");
-      }
-
-      // Simular progreso
-      const simulateProgress = setInterval(() => {
-        setDownloadProgress((prev) => {
-          if (prev >= 90) {
-            clearInterval(simulateProgress);
-            return prev;
-          }
-          return prev + Math.random() * 30;
-        });
-      }, 200);
-
-      const blob = await response.blob();
-      clearInterval(simulateProgress);
-      setDownloadProgress(100);
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-      setTimeout(() => {
-        setIsDownloading(false);
-        setDownloadProgress(0);
-        setIsModalOpen(false);
-      }, 1500);
-    } catch (error) {
-      console.error("Error descargando:", error);
-      alert("Error al descargar. Por favor, intenta de nuevo.");
-      setIsDownloading(false);
-      setDownloadProgress(0);
-    }
-  };
-
+  // Detectar SO y llevar a la URL correcta
   const downloadByOS = () => {
-    // Detectar el SO del usuario
     const userAgent = window.navigator.userAgent;
-    let selectedDownload = downloadLinks[0];
+    let link = downloadLinks[0]; // Windows por defecto
 
     if (userAgent.indexOf("Win") > -1) {
-      selectedDownload = downloadLinks[0]; // Windows
+      link = downloadLinks[0]; // Windows
     } else if (userAgent.indexOf("Mac") > -1) {
-      selectedDownload = downloadLinks[1]; // macOS
+      link = downloadLinks[1]; // macOS
     } else if (userAgent.indexOf("Linux") > -1) {
-      selectedDownload = downloadLinks[2]; // Linux
+      link = downloadLinks[2]; // Linux
     } else if (userAgent.indexOf("iPhone") > -1 || userAgent.indexOf("iPad") > -1) {
-      selectedDownload = downloadLinks[3]; // iOS
+      link = downloadLinks[3]; // iOS
     } else if (userAgent.indexOf("Android") > -1) {
-      selectedDownload = downloadLinks[4]; // Android
+      link = downloadLinks[4]; // Android
     }
 
-    handleDownload(selectedDownload.path, selectedDownload.filename);
+    window.open(link.url, "_blank");
   };
 
   return (
@@ -157,7 +130,7 @@ export function AppDownload() {
                 ))}
               </div>
 
-              {/* Botones de descarga */}
+              {/* Botones */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
                   size="lg" 
@@ -207,7 +180,7 @@ export function AppDownload() {
                         {downloadLinks.map((link) => (
                           <button
                             key={link.os}
-                            onClick={() => handleDownload(link.path, link.filename)}
+                            onClick={() => window.open(link.url, "_blank")}
                             className="px-3 py-1 rounded-full bg-secondary text-sm text-muted-foreground hover:bg-primary/20 hover:text-primary transition-colors duration-200 cursor-pointer"
                           >
                             {link.os}
@@ -232,7 +205,7 @@ export function AppDownload() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => !isDownloading && setIsModalOpen(false)}
+              onClick={() => setIsModalOpen(false)}
               className="fixed inset-0 bg-black/50 z-40"
             />
 
@@ -251,8 +224,7 @@ export function AppDownload() {
                   </h2>
                   <button
                     onClick={() => setIsModalOpen(false)}
-                    disabled={isDownloading}
-                    className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors disabled:opacity-50"
+                    className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
                   >
                     <X className="h-6 w-6" />
                   </button>
@@ -260,112 +232,87 @@ export function AppDownload() {
 
                 {/* Content */}
                 <div className="p-6">
-                  {isDownloading ? (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="flex flex-col items-center justify-center py-12"
-                    >
-                      <div className="mb-6">
-                        <div className="w-16 h-16 rounded-full border-4 border-slate-200 dark:border-slate-700 border-t-primary animate-spin" />
-                      </div>
-                      <h3 className="text-xl font-semibold mb-2">Descargando...</h3>
-                      <p className="text-muted-foreground mb-4">
-                        Por favor espera mientras descargamos tu archivo
-                      </p>
-                      <div className="w-full max-w-xs">
-                        <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${downloadProgress}%` }}
-                            className="h-full bg-primary"
-                            transition={{ ease: "easeOut" }}
-                          />
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-2 text-center">
-                          {Math.round(downloadProgress)}%
-                        </p>
-                      </div>
-                    </motion.div>
-                  ) : (
-                    <>
-                      {/* Computadoras de escritorio */}
-                      <div className="mb-8">
-                        <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                          <Monitor className="h-5 w-5 text-primary" />
-                          Computadoras
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {downloadLinks
-                            .filter((link) => link.os !== "iOS" && link.os !== "Android")
-                            .map((link) => (
-                              <motion.button
-                                key={link.os}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                onClick={() => handleDownload(link.path, link.filename)}
-                                className="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 transition-all duration-200 text-left group"
-                              >
-                                <div className="text-primary mb-3 group-hover:scale-110 transition-transform">
-                                  <Monitor className="h-8 w-8" />
-                                </div>
-                                <h4 className="font-semibold text-foreground mb-1">
-                                  {link.os}
-                                </h4>
-                                <p className="text-xs text-muted-foreground">
-                                  {link.filename}
-                                </p>
-                              </motion.button>
-                            ))}
-                        </div>
-                      </div>
+                  {/* Computadoras de escritorio */}
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                      <Monitor className="h-5 w-5 text-primary" />
+                      Computadoras
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {downloadLinks
+                        .filter((link) => link.type === "desktop")
+                        .map((link, index) => (
+                          <motion.button
+                            key={link.os}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            onClick={() => {
+                              window.open(link.url, "_blank");
+                              setIsModalOpen(false);
+                            }}
+                            className="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 transition-all duration-200 text-left group"
+                          >
+                            <div className="text-primary mb-3 group-hover:scale-110 transition-transform">
+                              <link.icon className="h-8 w-8" />
+                            </div>
+                            <h4 className="font-semibold text-foreground mb-1">
+                              {link.os}
+                            </h4>
+                            <p className="text-xs text-muted-foreground">
+                              {link.description}
+                            </p>
+                          </motion.button>
+                        ))}
+                    </div>
+                  </div>
 
-                      {/* Dispositivos móviles */}
-                      <div>
-                        <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                          <Smartphone className="h-5 w-5 text-primary" />
-                          Dispositivos Móviles
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {downloadLinks
-                            .filter((link) => link.os === "iOS" || link.os === "Android")
-                            .map((link) => (
-                              <motion.button
-                                key={link.os}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                onClick={() => handleDownload(link.path, link.filename)}
-                                className="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 transition-all duration-200 text-left group"
-                              >
-                                <div className="text-primary mb-3 group-hover:scale-110 transition-transform">
-                                  <Smartphone className="h-8 w-8" />
-                                </div>
-                                <h4 className="font-semibold text-foreground mb-1">
-                                  {link.os}
-                                </h4>
-                                <p className="text-xs text-muted-foreground">
-                                  {link.filename}
-                                </p>
-                              </motion.button>
-                            ))}
-                        </div>
-                      </div>
-                    </>
-                  )}
+                  {/* Dispositivos móviles */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                      <Smartphone className="h-5 w-5 text-primary" />
+                      Dispositivos Móviles
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {downloadLinks
+                        .filter((link) => link.type === "mobile")
+                        .map((link, index) => (
+                          <motion.button
+                            key={link.os}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            onClick={() => {
+                              window.open(link.url, "_blank");
+                              setIsModalOpen(false);
+                            }}
+                            className="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 transition-all duration-200 text-left group"
+                          >
+                            <div className="text-primary mb-3 group-hover:scale-110 transition-transform">
+                              <link.icon className="h-8 w-8" />
+                            </div>
+                            <h4 className="font-semibold text-foreground mb-1">
+                              {link.os}
+                            </h4>
+                            <p className="text-xs text-muted-foreground">
+                              {link.description}
+                            </p>
+                          </motion.button>
+                        ))}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Footer */}
-                {!isDownloading && (
-                  <div className="p-6 border-t border-slate-200 dark:border-slate-700">
-                    <Button
-                      onClick={() => setIsModalOpen(false)}
-                      variant="outline"
-                      className="w-full"
-                    >
-                      Cerrar
-                    </Button>
-                  </div>
-                )}
+                <div className="p-6 border-t border-slate-200 dark:border-slate-700">
+                  <Button
+                    onClick={() => setIsModalOpen(false)}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    Cerrar
+                  </Button>
+                </div>
               </div>
             </motion.div>
           </>

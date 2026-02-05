@@ -1,10 +1,13 @@
 import { motion } from "framer-motion";
-import { Play, BookOpen, Music, Heart } from "lucide-react";
+import { Play, BookOpen, Music, Heart, Radio } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const videos = {
+  envivo: [
+    { id: "1VtEKQLScTA", title: "Transmisión En Vivo - Domingo", description: "Servicio dominical en directo", isLive: true },
+  ],
   ensenanzas: [
     { id: "1VtEKQLScTA", title: "La Fe que Transforma", description: "Enseñanza profunda sobre la fe viva" },
     { id: "7-dKxAMzWAc", title: "Caminando en Esperanza", description: "Mensaje de esperanza y fortaleza" },
@@ -23,6 +26,7 @@ const videos = {
 };
 
 const categories = [
+  { id: "envivo", label: "En Vivo", icon: Radio },
   { id: "ensenanzas", label: "Enseñanzas", icon: BookOpen },
   { id: "oraciones", label: "Oraciones", icon: Heart },
   { id: "alabanzas", label: "Alabanzas", icon: Music },
@@ -52,8 +56,8 @@ export function VideoLibrary() {
           </p>
         </motion.div>
 
-        <Tabs defaultValue="ensenanzas" className="w-full">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 mb-8">
+        <Tabs defaultValue="envivo" className="w-full">
+          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-2 md:grid-cols-4 mb-8">
             {categories.map((cat) => (
               <TabsTrigger key={cat.id} value={cat.id} className="gap-2">
                 <cat.icon className="h-4 w-4" />
@@ -64,6 +68,14 @@ export function VideoLibrary() {
 
           {Object.entries(videos).map(([category, videoList]) => (
             <TabsContent key={category} value={category}>
+              {category === "envivo" && (
+                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center gap-2">
+                  <div className="h-3 w-3 bg-red-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm font-semibold text-red-600 dark:text-red-400">
+                    EN VIVO AHORA
+                  </span>
+                </div>
+              )}
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {videoList.map((video, index) => (
                   <motion.div
@@ -73,7 +85,9 @@ export function VideoLibrary() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: index * 0.1 }}
                   >
-                    <Card className="overflow-hidden hover:shadow-lg transition-shadow group">
+                    <Card className={`overflow-hidden hover:shadow-lg transition-shadow group ${
+                      video.isLive ? "border-red-500 border-2" : ""
+                    }`}>
                       <AspectRatio ratio={16 / 9}>
                         <iframe
                           src={`https://www.youtube.com/embed/${video.id}`}
@@ -84,6 +98,12 @@ export function VideoLibrary() {
                         />
                       </AspectRatio>
                       <CardContent className="p-4">
+                        {video.isLive && (
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="h-2 w-2 bg-red-500 rounded-full animate-pulse"></div>
+                            <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase">EN VIVO</span>
+                          </div>
+                        )}
                         <h3 className="font-serif font-semibold text-lg text-foreground mb-1">
                           {video.title}
                         </h3>

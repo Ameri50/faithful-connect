@@ -3,7 +3,7 @@ import { Menu, X, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useTheme } from "@/components/ThemeProvider";
-import logo from "@/assets/logo.png";
+import { TabernaculoLogo } from "@/components/TabernaculoLogo";
 
 const navLinks = [
   { href: "#inicio", label: "Inicio" },
@@ -44,8 +44,29 @@ export function Header() {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <a href="#inicio" className="flex items-center gap-3">
-            <img src={logo} alt="Tabernáculo Branham" className="h-10 md:h-12 w-auto" />
-           
+            <div className={`h-10 md:h-12 w-10 md:w-12 flex items-center justify-center rounded-lg transition-all duration-300 ${
+              theme === "dark"
+                ? "bg-primary/10"
+                : "bg-white/20"
+            }`}>
+              <TabernaculoLogo />
+            </div>
+            <div className="hidden sm:flex flex-col">
+              <span className={`font-serif text-sm md:text-base font-bold transition-colors duration-300 ${
+                theme === "dark"
+                  ? "text-foreground"
+                  : "text-white"
+              }`}>
+                Tabernáculo
+              </span>
+              <span className={`font-serif text-xs md:text-sm font-semibold transition-colors duration-300 ${
+                theme === "dark"
+                  ? "text-primary"
+                  : "text-white/90"
+              }`}>
+                Branham
+              </span>
+            </div>
           </a>
 
           {/* Desktop Navigation */}

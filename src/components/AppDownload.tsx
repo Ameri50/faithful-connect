@@ -38,13 +38,7 @@ const downloadLinks = [
     url: "https://branham.org/es/articles/8152019_TheTableDesktopApp",
     type: "desktop",
   },
-  {
-    os: "Linux",
-    icon: Monitor,
-    description: "Para Linux",
-    url: "https://branham.org/es/articles/8152019_TheTableDesktopApp",
-    type: "desktop",
-  },
+  
   {
     os: "iOS",
     icon: Smartphone,

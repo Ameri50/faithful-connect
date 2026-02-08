@@ -56,7 +56,7 @@ const downloadLinks = [
     os: "Android",
     icon: Smartphone,
     description: "Para dispositivos Android",
-    url: "https://play.google.com/store/apps/details?id=com.branham.table", // Cambia si tienes otro link
+    url: "https://play.google.com/store/apps/details?id=org.branham.table.app&pcampaignid=web_share", // Cambia si tienes otro link
     type: "mobile",
   },
 ];

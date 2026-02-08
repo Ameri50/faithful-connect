@@ -24,12 +24,7 @@ const downloadOptions: DownloadOption[] = [
     description: "Para computadoras Apple",
     versions: [{ name: "macOS 10.15+", api: "macos" }],
   },
-  {
-    os: "Linux",
-    icon: <Monitor className="h-8 w-8" />,
-    description: "Para sistemas Linux",
-    versions: [{ name: "Linux Universal", api: "linux" }],
-  },
+  
   {
     os: "iOS",
     icon: <Smartphone className="h-8 w-8" />,
